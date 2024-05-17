@@ -40,10 +40,10 @@ class Transaction(Base):
     def deposit(self, session, account_id, amount):
         account = session.get(Account, account_id)
         if not isinstance(amount, (float, int)) or amount <= 0:
-            return f"Please enter a valid number."
+            transaction = "Deposit failed. Please enter a valid number."
         else:
             account.balance += amount
-            transaction = Transaction(account_id=account_id, amount=amount, transaction_type='deposit')
+            transaction = Transaction(account_id=account_id, amount=amount, transaction_type='deposit', transaction_date=datetime.now())
             session.add(transaction)
             session.commit()
         return transaction
@@ -54,7 +54,7 @@ class Transaction(Base):
             return f"Please enter a valid number."
         else:
             account.balance -= amount
-            transaction = Transaction(account_id=account_id, amount=amount, transaction_type='withdraw')
+            transaction = Transaction(account_id=account_id, amount=amount, transaction_type='withdraw', transaction_date=datetime.now())
             session.add(transaction)
             session.commit()
         return transaction
@@ -67,7 +67,7 @@ class Transaction(Base):
         else:
             account_from_obj.balance -= amount
             account_to_obj.balance += amount
-            transaction = Transaction(account_from_id=account_from, account_id=account_to, amount=amount, transaction_type='transfer')
+            transaction = Transaction(account_from_id=account_from, account_id=account_to, amount=amount, transaction_type='transfer', transaction_date=datetime.now())
             session.add(transaction)
             session.commit()
         return transaction
