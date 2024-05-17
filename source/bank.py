@@ -51,23 +51,29 @@ class Transaction(Base):
     def withdraw(self, session, account_id, amount):
         account = session.get(Account, account_id)
         if not isinstance(amount, (float, int)) or amount <= 0:
-            return f"Please enter a valid number."
+            transaction = "Withdraw failed. Please enter a valid number."
         else:
-            account.balance -= amount
-            transaction = Transaction(account_id=account_id, amount=amount, transaction_type='withdraw', transaction_date=datetime.now())
-            session.add(transaction)
-            session.commit()
+            if amount > account.balance:
+                transaction = "Withdraw failed because of insufficient funds."
+            else:
+                account.balance -= amount
+                transaction = Transaction(account_id=account_id, amount=amount, transaction_type='withdraw', transaction_date=datetime.now())
+                session.add(transaction)
+                session.commit()
         return transaction
               
     def transfer(self, session, account_from, account_to, amount):
         account_from_obj = session.get(Account, account_from)
         account_to_obj = session.get(Account, account_to)
         if not isinstance(amount, (float, int))  or amount <= 0:
-            return f"Please enter a valid number."
+            return f"Transfer failed. Please enter a valid number."
         else:
-            account_from_obj.balance -= amount
-            account_to_obj.balance += amount
-            transaction = Transaction(account_from_id=account_from, account_id=account_to, amount=amount, transaction_type='transfer', transaction_date=datetime.now())
-            session.add(transaction)
-            session.commit()
+            if amount > account_from_obj.balance:
+                return f'Transfer failed due to insufficient funds from account {account_from}'
+            else:
+                account_from_obj.balance -= amount
+                account_to_obj.balance += amount
+                transaction = Transaction(account_from_id=account_from, account_id=account_to, amount=amount, transaction_type='transfer', transaction_date=datetime.now())
+                session.add(transaction)
+                session.commit()
         return transaction
