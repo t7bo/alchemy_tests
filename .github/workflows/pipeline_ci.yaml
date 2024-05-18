@@ -13,7 +13,7 @@ on:
 # Cette section contient la définition des jobs qui seront exécutés par le pipeline CI. Chaque job représente un ensemble de tâches que l'on veut exécuter sur une machine virtuelle.
 jobs:
   build: # C'est le nom du job. Vous avez nommé ce job build, ce qui indique que ce job est responsable de la construction (et probablement des tests) du projet.
-    runs-on: [windows-latest, ubuntu-latest] # Cette section spécifie sur quel type de machine virtuelle le job doit s'exécuter. (Ici, les dernières versions de Windows & Ubuntu)
+    runs-on: windows-latest # Cette section spécifie sur quel type de machine virtuelle le job doit s'exécuter. (Ici, les dernières versions de Windows & Ubuntu)
     steps: # Cette section contient la liste des étapes que le job doit exécuter. Chaque étape est une tâche individuelle que la machine virtuelle doit accomplir.
       - uses: actions/checkout@v2
       # 1ère étape : Set-up Python & Github project?
