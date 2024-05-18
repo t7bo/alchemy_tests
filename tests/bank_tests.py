@@ -19,6 +19,7 @@ def test_normal_deposit(my_session, account_factory):
 
     assert positive_deposit.amount > 0
     assert positive_deposit.transaction_type == 'deposit'
+    assert my_session.query(Transaction).count() == 1
     assert positive_deposit.transaction_date is not None
     assert my_session.commit.called
     
@@ -39,6 +40,7 @@ def test_negative_deposit(my_session, account_factory):
     assert account.balance == 0
     assert negative_deposit == "Deposit failed. Please enter a valid number."
     # my_session.commit.assert_not_called()
+    assert my_session.query(Transaction).count() == 0
     assert my_session.commit.called
     
 
@@ -59,6 +61,7 @@ def test_zero_deposit(my_session, account_factory):
     assert account.balance == 0
     assert negative_deposit == "Deposit failed. Please enter a valid number."
     # my_session.commit.assert_not_called()
+    assert my_session.query(Transaction).count() == 0
     assert my_session.commit.called
 
 
@@ -78,6 +81,7 @@ def test_normal_withdraw(my_session, account_factory):
     
     assert account.balance == 50
     assert withdraw.transaction_type == "withdraw"
+    assert my_session.query(Transaction).count() == 2
     assert my_session.commit.called
     
 ''' - **test_withdraw_insufficient_funds**:
@@ -95,6 +99,7 @@ def test_insufficient_funds_withdraw(my_session, account_factory):
     
     assert account.balance == 0
     assert withdraw == "Withdraw failed because of insufficient funds."
+    assert my_session.query(Transaction).count() == 0
     assert my_session.commit.called
     
 ''' - **test_withdraw_negative_amount**:
@@ -115,6 +120,7 @@ def test_negative_withdraw(my_session, account_factory):
     assert account.balance == 100
     assert withdraw == "Withdraw failed. Please enter a valid number."
     assert my_session.commit.called
+    assert my_session.query(Transaction).count() == 1 # 1 parce que deposit
 
 ''' - **test_withdraw_zero_amount**:
 - Tenter de retirer un montant nul.
@@ -133,6 +139,7 @@ def test_zero_withdraw(my_session, account_factory):
     
     assert account.balance == 100
     assert withdraw == "Withdraw failed. Please enter a valid number."
+    assert my_session.query(Transaction).count() == 1 # 1 parce que deposit
     assert my_session.commit.called
 
 ''' - **test_transfer_normal**:
@@ -163,7 +170,7 @@ def test_transfer_normal(my_session, account_factory):
     
     assert account_from.balance == 50
     assert account_to.balance == 50
-    
+    assert my_session.query(Transaction).count() == 2 # deposit et transfer
     assert my_session.commit.called
     
 ''' - **test_transfer_insufficient_funds**:
@@ -193,6 +200,7 @@ def test_transfer_insufficient_funds(my_session, account_factory):
     assert account_from.balance == 0
     assert account_to.balance == 0
     assert transfer == 'Transfer failed due to insufficient funds from account 1'
+    assert my_session.query(Transaction).count() == 0 # 0 transaction
     assert my_session.commit.called
     
     ''' - **test_transfer_negative_amount**:
@@ -222,6 +230,7 @@ def test_transfer_negative_amount(my_session, account_factory):
     assert account_from.balance == 0
     assert account_to.balance == 0
     assert transfer == "Transfer failed. Please enter a valid number."
+    assert my_session.query(Transaction).count() == 0 # 0 transaction
     assert my_session.commit.called
     
     ''' - Tenter de transférer un montant nul.
@@ -250,6 +259,7 @@ def test_transfer_zero_amount(my_session, account_factory):
     assert account_from.balance == 0
     assert account_to.balance == 0
     assert transfer == "Transfer failed. Please enter a valid number."
+    assert my_session.query(Transaction).count() == 0 # 0 transaction
     assert my_session.commit.called
     
 
@@ -282,6 +292,7 @@ def test_get_balance_after_deposit(my_session, account_factory):
     balance = Account.get_balance(account)
     
     assert balance == "Account 1's balance is 50 $"
+    assert my_session.query(Transaction).count() == 1 # 1 car déposit
     
 ''' - **test_get_balance_after_withdrawal**:
     - Vérifier le solde après un retrait.
@@ -299,6 +310,7 @@ def test_get_balance_after_withdraw(my_session, account_factory):
     balance = Account.get_balance(account)
     
     assert balance == "Account 1's balance is 20 $"
+    assert my_session.query(Transaction).count() == 2 # 2 car déposit + withdraw
     
 ''' test_get_balance_after_failed_withdrawal:
 - Vérifier le solde après une tentative de retrait échouée due à un solde insuffisant.
@@ -316,6 +328,7 @@ def test_get_balance_after_failed_withdraw(my_session, account_factory):
     balance = Account.get_balance(account)
     
     assert balance == "Account 1's balance is 50 $"
+    assert my_session.query(Transaction).count() == 1 # 1 car déposit + failed withdraw
     
 ''' - **test_get_balance_after_transfer**:
     - Vérifier le solde après un transfert entre deux comptes.
@@ -348,3 +361,4 @@ def test_get_balance_after_transfer(my_session, account_factory):
     
     assert balance_account1 == "Account 1's balance is 70 $"
     assert balance_account2 == "Account 2's balance is 30 $"
+    assert my_session.query(Transaction).count() == 2 # deposit + transfer
